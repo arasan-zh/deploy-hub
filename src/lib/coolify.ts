@@ -80,10 +80,18 @@ function toDeployment(app: Record<string, unknown>): Deployment {
   };
 }
 
-function buildStaticHtmlDockerfile(htmlBase64: string): string {
+function buildStaticHtmlDockerfile(htmlContent: string): string {
+  // A COPY heredoc keeps the file as normal multi-line text instead of one giant
+  // base64 blob crammed into a single shell command — the latter blew past a
+  // command-length limit in Coolify's remote SSH execution for anything but a
+  // trivial file (ProcessStartFailedException, reproducible, not transient).
+  const delimiter = `DEPLOYHUB_${Math.random().toString(36).slice(2, 10).toUpperCase()}`;
   return [
+    "# syntax=docker/dockerfile:1",
     "FROM nginx:alpine",
-    `RUN echo '${htmlBase64}' | base64 -d > /usr/share/nginx/html/index.html`,
+    `COPY <<'${delimiter}' /usr/share/nginx/html/index.html`,
+    htmlContent,
+    delimiter,
     "EXPOSE 80",
     "",
   ].join("\n");
@@ -93,8 +101,7 @@ export async function createStaticDeployment(opts: {
   name: string;
   htmlContent: string;
 }): Promise<{ uuid: string; url: string | null }> {
-  const htmlBase64 = Buffer.from(opts.htmlContent, "utf-8").toString("base64");
-  const dockerfile = buildStaticHtmlDockerfile(htmlBase64);
+  const dockerfile = buildStaticHtmlDockerfile(opts.htmlContent);
   const dockerfileBase64 = Buffer.from(dockerfile, "utf-8").toString("base64");
 
   const result = await coolifyFetch<{ uuid: string; domains: string | null }>(
