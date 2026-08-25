@@ -91,6 +91,11 @@ export function UploadHtmlForm() {
         )}
       </motion.div>
 
+      <p className="px-1 text-xs text-foreground/40">
+        One self-contained file — inline your CSS and JS, or link to hosted assets. Separate
+        files like <code className="font-mono">style.css</code> won't be uploaded alongside it.
+      </p>
+
       <div className="space-y-1.5">
         <Input
           placeholder="Site name (optional)"
