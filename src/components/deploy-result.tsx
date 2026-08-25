@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Chip, Spinner } from "@heroui/react";
+import { Chip } from "@heroui/react";
+import { LogoLoader } from "./logo";
 
 export interface DeployResultData {
   uuid: string;
@@ -84,8 +85,8 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
 
       <div className="mt-4">
         {!isRunning && (
-          <div className="flex items-center gap-2 text-sm text-foreground/60">
-            <Spinner size="sm" />
+          <div className="flex items-center gap-3 text-sm text-foreground/60">
+            <LogoLoader className="h-8 w-8 shrink-0" />
             Building and starting your app — this can take a minute.
           </div>
         )}
