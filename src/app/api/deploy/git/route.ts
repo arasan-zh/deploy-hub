@@ -1,15 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createGitDeployment, CoolifyError, type BuildPack } from "@/lib/coolify";
-
-function slugify(input: string): string {
-  return (
-    input
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 40) || "app"
-  );
-}
+import { createGitDeployment, isNameTaken, friendlyDeployError, type BuildPack } from "@/lib/coolify";
+import { resolveName } from "@/lib/naming";
 
 const VALID_BUILD_PACKS: BuildPack[] = ["nixpacks", "static", "dockerfile"];
 
@@ -36,9 +27,15 @@ export async function POST(req: NextRequest) {
 
   const branch = typeof body.branch === "string" && body.branch.trim() ? body.branch.trim() : "main";
   const repoName = body.repoUrl.replace(/\.git$/, "").split("/").filter(Boolean).pop() ?? "app";
-  const name = `${slugify(typeof body.name === "string" && body.name ? body.name : repoName)}-${Math.random().toString(36).slice(2, 7)}`;
+  const name = resolveName(typeof body.name === "string" ? body.name : null, repoName);
 
   try {
+    if (await isNameTaken(name)) {
+      return NextResponse.json(
+        { error: "That name is already taken. Try a different one." },
+        { status: 409 },
+      );
+    }
     const { uuid, url } = await createGitDeployment({
       name,
       repoUrl: body.repoUrl.trim(),
@@ -50,12 +47,7 @@ export async function POST(req: NextRequest) {
     });
     return NextResponse.json({ uuid, url, name }, { status: 201 });
   } catch (err) {
-    if (err instanceof CoolifyError) {
-      return NextResponse.json(
-        { error: err.message, details: err.details },
-        { status: err.status },
-      );
-    }
-    return NextResponse.json({ error: "Deployment failed." }, { status: 500 });
+    const { message, status } = friendlyDeployError(err);
+    return NextResponse.json({ error: message }, { status });
   }
 }

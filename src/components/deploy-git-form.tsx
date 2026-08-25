@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button, Input } from "@heroui/react";
 import { DeployResult, type DeployResultData } from "./deploy-result";
+import { DomainPreview } from "./domain-preview";
 
 type BuildPack = "nixpacks" | "static" | "dockerfile";
 
@@ -96,6 +97,9 @@ export function DeployGitForm() {
           fullWidth
         />
       </div>
+      <DomainPreview
+        name={name || repoUrl.replace(/\.git$/, "").split("/").filter(Boolean).pop() || ""}
+      />
 
       <div className="space-y-2">
         <label className="text-sm font-medium text-foreground/70">Build type</label>

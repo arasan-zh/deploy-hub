@@ -4,6 +4,7 @@ import { useRef, useState } from "react";
 import { motion } from "framer-motion";
 import { Button, Input } from "@heroui/react";
 import { DeployResult, type DeployResultData } from "./deploy-result";
+import { DomainPreview } from "./domain-preview";
 
 export function UploadHtmlForm() {
   const [file, setFile] = useState<File | null>(null);
@@ -90,12 +91,15 @@ export function UploadHtmlForm() {
         )}
       </motion.div>
 
-      <Input
-        placeholder="Site name (optional)"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        fullWidth
-      />
+      <div className="space-y-1.5">
+        <Input
+          placeholder="Site name (optional)"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          fullWidth
+        />
+        <DomainPreview name={name || file?.name.replace(/\.html?$/i, "") || ""} />
+      </div>
 
       {error && <p className="text-sm text-danger">{error}</p>}
 

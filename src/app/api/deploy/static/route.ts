@@ -1,17 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createStaticDeployment, CoolifyError } from "@/lib/coolify";
+import { createStaticDeployment, isNameTaken, friendlyDeployError } from "@/lib/coolify";
+import { resolveName } from "@/lib/naming";
 
 const MAX_SIZE_BYTES = 2 * 1024 * 1024;
-
-function slugify(input: string): string {
-  return (
-    input
-      .toLowerCase()
-      .replace(/[^a-z0-9]+/g, "-")
-      .replace(/^-+|-+$/g, "")
-      .slice(0, 40) || "site"
-  );
-}
 
 export async function POST(req: NextRequest) {
   const form = await req.formData();
@@ -37,18 +28,22 @@ export async function POST(req: NextRequest) {
   }
 
   const htmlContent = await file.text();
-  const name = `${slugify(typeof nameInput === "string" && nameInput ? nameInput : file.name.replace(/\.html?$/i, ""))}-${Math.random().toString(36).slice(2, 7)}`;
+  const name = resolveName(
+    typeof nameInput === "string" ? nameInput : null,
+    file.name.replace(/\.html?$/i, ""),
+  );
 
   try {
+    if (await isNameTaken(name)) {
+      return NextResponse.json(
+        { error: "That name is already taken. Try a different one." },
+        { status: 409 },
+      );
+    }
     const { uuid, url } = await createStaticDeployment({ name, htmlContent });
     return NextResponse.json({ uuid, url, name }, { status: 201 });
   } catch (err) {
-    if (err instanceof CoolifyError) {
-      return NextResponse.json(
-        { error: err.message, details: err.details },
-        { status: err.status },
-      );
-    }
-    return NextResponse.json({ error: "Deployment failed." }, { status: 500 });
+    const { message, status } = friendlyDeployError(err);
+    return NextResponse.json({ error: message }, { status });
   }
 }

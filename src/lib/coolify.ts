@@ -169,6 +169,23 @@ export async function listDeployments(): Promise<Deployment[]> {
   return apps.filter((a) => hasPublicDomain(a.fqdn)).map(toDeployment);
 }
 
+/** Checks every app on the instance (not just this tool's) — a name collides if it's already live anywhere under our domain. */
+export async function isNameTaken(name: string): Promise<boolean> {
+  const apps = await coolifyFetch<Record<string, unknown>[]>("/applications");
+  const target = `${name}.${PUBLIC_DOMAIN_SUFFIX}`;
+  return apps.some((a) => {
+    const fqdn = a.fqdn;
+    if (typeof fqdn !== "string" || !fqdn) return false;
+    return fqdn.split(",").some((url) => {
+      try {
+        return new URL(url.trim()).hostname === target;
+      } catch {
+        return false;
+      }
+    });
+  });
+}
+
 export async function getDeployment(uuid: string): Promise<Deployment> {
   const app = await coolifyFetch<Record<string, unknown>>(`/applications/${uuid}`);
   return toDeployment(app);
@@ -179,4 +196,15 @@ export async function deleteDeployment(uuid: string): Promise<void> {
     `/applications/${uuid}?delete_configurations=true&delete_volumes=true&docker_cleanup=true`,
     { method: "DELETE" },
   );
+}
+
+/** Turns a Coolify domain-conflict (409) into a message a user can act on; other errors pass through as-is. */
+export function friendlyDeployError(err: unknown): { message: string; status: number } {
+  if (err instanceof CoolifyError) {
+    if (err.status === 409) {
+      return { message: "That name is already taken. Try a different one.", status: 409 };
+    }
+    return { message: err.message, status: err.status };
+  }
+  return { message: "Deployment failed.", status: 500 };
 }
