@@ -1,24 +1,25 @@
 import Link from "next/link";
+import { Logo } from "./logo";
 
 export function SiteHeader() {
   return (
-    <header className="sticky top-0 z-20 border-b border-black/[.06] bg-white/80 backdrop-blur">
-      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3 sm:px-6">
-        <Link href="/" className="flex items-center gap-2 font-semibold tracking-tight">
-          <span className="flex h-7 w-7 items-center justify-center rounded-lg bg-[#131316] text-sm text-white">
-            ▲
-          </span>
-          <span>Deploy Hub</span>
+    <header className="sticky top-0 z-30 border-b border-border/60 bg-background/70 backdrop-blur-xl">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-4 px-4 py-3.5 sm:px-6">
+        <Link href="/" className="transition-opacity hover:opacity-80">
+          <Logo />
         </Link>
-        <nav className="flex items-center gap-4 text-sm">
-          <Link href="/" className="hidden text-black/60 hover:text-black sm:inline">
+        <nav className="flex items-center gap-2 text-sm sm:gap-3">
+          <Link
+            href="/"
+            className="hidden rounded-full px-3 py-1.5 text-foreground/60 transition hover:text-foreground sm:inline"
+          >
             Deploy
           </Link>
           <Link
             href="/deployments"
-            className="rounded-full bg-[#131316] px-4 py-1.5 font-medium text-white transition hover:opacity-90"
+            className="rounded-full bg-accent px-4 py-1.5 font-medium text-accent-foreground transition hover:opacity-90"
           >
-            My deployments
+            Deployments
           </Link>
         </nav>
       </div>

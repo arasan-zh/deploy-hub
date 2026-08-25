@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
 import { Chip, Spinner } from "@heroui/react";
 
 export interface DeployResultData {
@@ -59,7 +60,12 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
   const isRunning = status.startsWith("running");
 
   return (
-    <div className="rounded-2xl border border-black/[.08] bg-white p-5 sm:p-6">
+    <motion.div
+      initial={{ opacity: 0, y: 8 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+      className="rounded-2xl border border-border p-5 sm:p-6"
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <span className="font-medium">{result.name}</span>
@@ -69,7 +75,7 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
         </div>
         <button
           onClick={onReset}
-          className="text-sm text-black/50 hover:text-black"
+          className="text-sm text-foreground/50 hover:text-foreground"
           type="button"
         >
           Deploy another
@@ -78,7 +84,7 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
 
       <div className="mt-4">
         {!isRunning && (
-          <div className="flex items-center gap-2 text-sm text-black/60">
+          <div className="flex items-center gap-2 text-sm text-foreground/60">
             <Spinner size="sm" />
             Building and starting your app — this can take a minute.
           </div>
@@ -90,7 +96,7 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
               href={result.url}
               target="_blank"
               rel="noreferrer"
-              className="truncate rounded-lg bg-black/[.04] px-3 py-2 text-sm font-mono text-black/80 hover:bg-black/[.07]"
+              className="truncate rounded-lg bg-surface-secondary px-3 py-2 text-sm font-mono text-foreground/80 hover:bg-surface-tertiary"
             >
               {result.url}
             </a>
@@ -101,7 +107,7 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
                 setCopied(true);
                 setTimeout(() => setCopied(false), 1500);
               }}
-              className="rounded-lg border border-black/10 px-3 py-2 text-sm hover:bg-black/[.03]"
+              className="rounded-lg border border-border px-3 py-2 text-sm hover:bg-surface-secondary"
             >
               {copied ? "Copied" : "Copy link"}
             </button>
@@ -110,7 +116,7 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
                 href={result.url}
                 target="_blank"
                 rel="noreferrer"
-                className="rounded-lg bg-[#131316] px-3 py-2 text-sm font-medium text-white hover:opacity-90"
+                className="rounded-lg bg-accent px-3 py-2 text-sm font-medium text-accent-foreground hover:opacity-90"
               >
                 Visit site →
               </a>
@@ -118,6 +124,6 @@ export function DeployResult({ result, onReset }: { result: DeployResultData; on
           </div>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }

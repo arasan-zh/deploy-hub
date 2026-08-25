@@ -98,7 +98,7 @@ export function DeployGitForm() {
       </div>
 
       <div className="space-y-2">
-        <label className="text-sm font-medium text-black/70">Build type</label>
+        <label className="text-sm font-medium text-foreground/70">Build type</label>
         <div className="grid gap-2 sm:grid-cols-3">
           {BUILD_PACKS.map((bp) => (
             <button
@@ -107,12 +107,12 @@ export function DeployGitForm() {
               onClick={() => setBuildPack(bp.value)}
               className={`rounded-xl border p-3 text-left text-sm transition ${
                 buildPack === bp.value
-                  ? "border-black/60 bg-black/[.03]"
-                  : "border-black/10 hover:border-black/25"
+                  ? "border-accent bg-accent-soft"
+                  : "border-border hover:border-foreground/25"
               }`}
             >
               <div className="font-medium">{bp.label}</div>
-              <div className="mt-0.5 text-xs text-black/50">{bp.hint}</div>
+              <div className="mt-0.5 text-xs text-foreground/50">{bp.hint}</div>
             </button>
           ))}
         </div>
@@ -144,7 +144,7 @@ export function DeployGitForm() {
         />
       )}
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <Button type="submit" variant="primary" isDisabled={loading} fullWidth>
         {loading ? "Deploying…" : "Deploy from git"}

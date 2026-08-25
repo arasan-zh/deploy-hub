@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { motion } from "framer-motion";
 import { Button, Input } from "@heroui/react";
 import { DeployResult, type DeployResultData } from "./deploy-result";
 
@@ -44,7 +45,9 @@ export function UploadHtmlForm() {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
-      <div
+      <motion.div
+        animate={{ scale: dragOver ? 1.01 : 1 }}
+        transition={{ duration: 0.2, ease: "easeOut" }}
         onDragOver={(e) => {
           e.preventDefault();
           setDragOver(true);
@@ -57,8 +60,8 @@ export function UploadHtmlForm() {
           if (dropped) setFile(dropped);
         }}
         onClick={() => inputRef.current?.click()}
-        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-12 text-center transition ${
-          dragOver ? "border-black/40 bg-black/[.03]" : "border-black/15 hover:border-black/25"
+        className={`flex cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed px-6 py-14 text-center transition-colors ${
+          dragOver ? "border-accent bg-accent-soft" : "border-border hover:border-foreground/25"
         }`}
       >
         <input
@@ -68,20 +71,24 @@ export function UploadHtmlForm() {
           className="hidden"
           onChange={(e) => setFile(e.target.files?.[0] ?? null)}
         />
+        <svg viewBox="0 0 24 24" fill="none" className="mb-1 h-6 w-6 text-foreground/35">
+          <path d="M12 16V4M12 4L7 9M12 4l5 5" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          <path d="M4 16v2a2 2 0 002 2h12a2 2 0 002-2v-2" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+        </svg>
         {file ? (
           <>
             <span className="font-medium">{file.name}</span>
-            <span className="text-sm text-black/50">
+            <span className="text-sm text-foreground/45">
               {(file.size / 1024).toFixed(1)} KB — click to choose a different file
             </span>
           </>
         ) : (
           <>
             <span className="font-medium">Drop your .html file here</span>
-            <span className="text-sm text-black/50">or click to browse — max 2MB</span>
+            <span className="text-sm text-foreground/45">or click to browse — max 2MB</span>
           </>
         )}
-      </div>
+      </motion.div>
 
       <Input
         placeholder="Site name (optional)"
@@ -90,7 +97,7 @@ export function UploadHtmlForm() {
         fullWidth
       />
 
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-danger">{error}</p>}
 
       <Button type="submit" variant="primary" isDisabled={loading} fullWidth>
         {loading ? "Deploying…" : "Deploy this page"}
